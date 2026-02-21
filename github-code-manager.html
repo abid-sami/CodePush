@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodePush — GitHub File Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-theme">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  :root[data-theme="dark"] {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: rgba(255,255,255,0.08);
+    --border-accent: rgba(99,179,237,0.4);
+    --text: #e8e8f0;
+    --text-muted: #6b6b82;
+    --text-dim: #4a4a62;
+    --accent: #63b3ed;
+    --accent2: #76e3c4;
+    --accent3: #f6ad55;
+    --danger: #fc8181;
+    --success: #68d391;
+    --warning: #f6e05e;
+    --card-bg: rgba(255,255,255,0.03);
+    --card-hover: rgba(255,255,255,0.05);
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+    --glow: 0 0 40px rgba(99,179,237,0.1);
+    --hljs-bg: #1a1a24;
+  }
+  :root[data-theme="light"] {
+    --bg: #f0f0f8;
+    --bg2: #e8e8f2;
+    --bg3: #ffffff;
+    --border: rgba(0,0,0,0.1);
+    --border-accent: rgba(59,130,246,0.4);
+    --text: #1a1a2e;
+    --text-muted: #6b6b8a;
+    --text-dim: #9898b0;
+    --accent: #2563eb;
+    --accent2: #059669;
+    --accent3: #d97706;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --warning: #ca8a04;
+    --card-bg: rgba(255,255,255,0.8);
+    --card-hover: rgba(255,255,255,0.95);
+    --shadow: 0 8px 32px rgba(0,0,0,0.1);
+    --glow: 0 0 40px rgba(37,99,235,0.08);
+    --hljs-bg: #f5f5ff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+    overflow-x: hidden;
+  }
+
+  /* BG Grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    background: rgba(10,10,15,0.7);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background 0.3s;
+  }
+  [data-theme="light"] header { background: rgba(240,240,248,0.8); }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .logo span { color: var(--accent); }
+
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+
+  /* Toggle */
+  .theme-toggle {
+    width: 48px; height: 26px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .theme-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    transition: transform 0.3s;
+  }
+  [data-theme="light"] .theme-toggle::after { transform: translateX(22px); }
+  .theme-label { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── AUTH BANNER ── */
+  .auth-banner {
+    background: linear-gradient(135deg, rgba(99,179,237,0.1), rgba(118,227,196,0.1));
+    border: 1px solid var(--border-accent);
+    border-radius: 16px;
+    padding: 24px 32px;
+    margin: 32px 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .auth-banner h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .auth-banner p { font-size: 13px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .auth-fields { display: flex; gap: 12px; flex: 1; flex-wrap: wrap; align-items: center; }
+
+  /* ── INPUTS ── */
+  input, select, textarea {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99,179,237,0.15);
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0f;
+  }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(99,179,237,0.3); }
+  .btn-secondary {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-success { background: var(--success); color: #0a0a0f; }
+  .btn-success:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  /* ── REPO CONFIG ── */
+  .repo-config {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    align-items: end;
+  }
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-label { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── MAIN GRID ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+  /* ── PANEL ── */
+  .panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel:hover { box-shadow: var(--shadow), var(--glow); }
+
+  .panel-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.02);
+  }
+  [data-theme="light"] .panel-header { background: rgba(0,0,0,0.02); }
+  .panel-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .panel-icon.blue { background: rgba(99,179,237,0.15); }
+  .panel-icon.green { background: rgba(118,227,196,0.15); }
+  .panel-title { font-size: 16px; font-weight: 700; }
+  .panel-subtitle { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .panel-body { padding: 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── CODE EDITOR ── */
+  .editor-wrapper {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    flex: 1;
+    min-height: 300px;
+  }
+  .editor-topbar {
+    background: var(--bg3);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .editor-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red { background: #ff5f56; }
+  .dot-yellow { background: #ffbd2e; }
+  .dot-green { background: #27c93f; }
+  .editor-filename { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); margin-left: 8px; }
+
+  #codeEditor {
+    width: 100%;
+    min-height: 260px;
+    resize: vertical;
+    border-radius: 0;
+    border: none;
+    background: var(--hljs-bg);
+    font-size: 13px;
+    line-height: 1.6;
+    tab-size: 2;
+    padding: 16px;
+  }
+  #codeEditor:focus { box-shadow: none; }
+
+  /* ── DROPZONE ── */
+  .dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(99,179,237,0.02);
+    position: relative;
+  }
+  .dropzone:hover, .dropzone.dragover {
+    border-color: var(--accent);
+    background: rgba(99,179,237,0.06);
+  }
+  .dropzone-icon { font-size: 40px; margin-bottom: 12px; }
+  .dropzone h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .dropzone p { font-size: 13px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .dropzone input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100%; height: 100%;
+  }
+
+  /* ── FILE PREVIEWS ── */
+  .file-list { display: flex; flex-direction: column; gap: 8px; }
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    animation: slideIn 0.2s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+  .file-ext-badge {
+    background: rgba(99,179,237,0.15);
+    color: var(--accent);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-size { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+  .file-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 4px; border-radius: 4px; transition: color 0.2s; }
+  .file-remove:hover { color: var(--danger); }
+
+  /* ── STATUS TOASTS ── */
+  .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+  .toast {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 280px;
+    max-width: 380px;
+  }
+  @keyframes toastIn { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+  .toast.success { border-color: var(--success); }
+  .toast.error { border-color: var(--danger); }
+  .toast.loading { border-color: var(--accent); }
+  .toast-icon { font-size: 18px; }
+  .toast-text { flex: 1; }
+  .toast-link { font-size: 12px; color: var(--accent); text-decoration: none; font-family: 'JetBrains Mono', monospace; display: block; margin-top: 2px; }
+  .toast-link:hover { text-decoration: underline; }
+
+  /* Spinner */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(99,179,237,0.3);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.4s ease; }
+
+  /* ── PAT INPUT ── */
+  .pat-wrapper { position: relative; flex: 1; min-width: 220px; }
+  .pat-wrapper input { padding-right: 40px; }
+  .pat-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; }
+
+  /* ── CONNECTED BADGE ── */
+  .connected-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(104,211,145,0.15);
+    border: 1px solid rgba(104,211,145,0.3);
+    color: var(--success);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+  .connected-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+  /* ── SECTION DIVIDER ── */
+  .inline-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 500px) { .inline-fields { grid-template-columns: 1fr; } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+  }
+
+  select option { background: #1a1a24; }
+
+  .hljs { background: var(--hljs-bg) !important; }
+
+  .status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  /* Loading overlay */
+  .btn-loading { pointer-events: none; }
+  .btn-loading .btn-text { opacity: 0; }
+
+  .upload-progress { margin-top: 8px; }
+  .upload-progress-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      Code<span>Push</span>
+    </div>
+    <div class="header-actions">
+      <span id="connectionStatus"></span>
+      <span class="theme-label">☀️</span>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-label="Toggle theme"></button>
+      <span class="theme-label">🌙</span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- AUTH BANNER -->
+  <div class="auth-banner">
+    <div>
+      <h2>🔐 GitHub Authentication</h2>
+      <p>Enter your Personal Access Token to connect</p>
+    </div>
+    <div class="auth-fields">
+      <div class="pat-wrapper">
+        <input type="password" id="patInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+        <button class="pat-toggle" id="patToggle" title="Show/Hide token">👁️</button>
+      </div>
+      <button class="btn btn-primary" id="connectBtn" onclick="connectGitHub()">Connect</button>
+    </div>
+  </div>
+
+  <!-- REPO CONFIG -->
+  <div class="repo-config">
+    <div class="field-group">
+      <label class="field-label">Repository</label>
+      <input type="text" id="repoInput" placeholder="owner/repo-name" disabled>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Branch</label>
+      <input type="text" id="branchInput" value="main" placeholder="main" disabled>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Directory Path (optional)</label>
+      <input type="text" id="dirPath" placeholder="src/code/" disabled>
+    </div>
+    <div class="field-group" style="align-self:end">
+      <button class="btn btn-secondary" id="verifyRepoBtn" onclick="verifyRepo()" disabled>Verify Repo →</button>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- PANEL 1: MANUAL CODE EDITOR -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-icon blue">📝</div>
+        <div>
+          <div class="panel-title">Manual Code Upload</div>
+          <div class="panel-subtitle">Write &amp; push code directly</div>
+        </div>
+      </div>
+      <div class="panel-body">
+
+        <div class="inline-fields">
+          <div class="field-group">
+            <label class="field-label">Language</label>
+            <select id="langSelect" onchange="updateLang()">
+              <option value="cpp">C++ (.cpp)</option>
+              <option value="python" selected>Python (.py)</option>
+              <option value="javascript">JavaScript (.js)</option>
+              <option value="html">HTML (.html)</option>
+              <option value="css">CSS (.css)</option>
+              <option value="typescript">TypeScript (.ts)</option>
+              <option value="java">Java (.java)</option>
+              <option value="go">Go (.go)</option>
+              <option value="rust">Rust (.rs)</option>
+              <option value="shell">Shell (.sh)</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">File Name</label>
+            <input type="text" id="fileNameInput" placeholder="main.py">
+          </div>
+        </div>
+
+        <div class="editor-wrapper">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div>
+            <div class="editor-dot dot-yellow"></div>
+            <div class="editor-dot dot-green"></div>
+            <span class="editor-filename" id="editorFilename">main.py</span>
+          </div>
+          <textarea id="codeEditor" spellcheck="false" placeholder="# Write your code here...
+def hello_world():
+    print('Hello, GitHub!')
+    
+hello_world()"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Commit Message</label>
+          <input type="text" id="commitMsg1" placeholder="feat: add new feature" value="feat: add file via CodePush">
+        </div>
+
+        <div class="status-row">
+          <button class="btn btn-primary" id="pushCodeBtn" onclick="pushCode()" style="flex:1">
+            <span>⚡ Push to GitHub</span>
+          </button>
+        </div>
+        <div id="codeProgress" style="display:none">
+          <div class="upload-progress-label">Pushing to GitHub...</div>
+          <div class="progress-bar-wrap"><div class="progress-bar" id="codeProgressBar" style="width:0%"></div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PANEL 2: FILE UPLOAD -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-icon green">📁</div>
+        <div>
+          <div class="panel-title">File Upload</div>
+          <div class="panel-subtitle">Drag, drop &amp; push files</div>
+        </div>
+      </div>
+      <div class="panel-body">
+
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="fileInput" multiple accept=".cpp,.py,.html,.css,.js,.ts,.java,.go,.rs,.sh,.txt,.json,.md,.yaml,.yml,.xml" onchange="handleFiles(this.files)">
+          <div class="dropzone-icon">📂</div>
+          <h3>Drop files here</h3>
+          <p>or click to browse • .cpp .py .html .css .js and more</p>
+        </div>
+
+        <div class="file-list" id="fileList"></div>
+
+        <div class="field-group">
+          <label class="field-label">Commit Message</label>
+          <input type="text" id="commitMsg2" placeholder="feat: upload files via CodePush" value="feat: upload files via CodePush">
+        </div>
+
+        <div class="status-row">
+          <button class="btn btn-success" id="uploadBtn" onclick="uploadFiles()" style="flex:1">
+            <span>🚀 Upload All to GitHub</span>
+          </button>
+        </div>
+        <div id="uploadProgress" style="display:none">
+          <div class="upload-progress-label" id="uploadProgressLabel">Uploading...</div>
+          <div class="progress-bar-wrap"><div class="progress-bar" id="uploadProgressBar" style="width:0%"></div></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<footer>CodePush — GitHub File Manager • All data stays in your browser • Made with ⚡</footer>
+
+<script>
+// ─── STATE ───
+let githubToken = '';
+let selectedFiles = [];
+let isConnected = false;
+
+const LANG_EXT = {
+  cpp: 'cpp', python: 'py', javascript: 'js', html: 'html',
+  css: 'css', typescript: 'ts', java: 'java', go: 'go', rust: 'rs', shell: 'sh'
+};
+
+// ─── THEME ───
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  document.getElementById('hljs-theme').href = isDark
+    ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css'
+    : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css';
+});
+
+// ─── PAT TOGGLE ───
+document.getElementById('patToggle').addEventListener('click', () => {
+  const inp = document.getElementById('patInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+});
+
+// ─── LANG SYNC ───
+function updateLang() {
+  const lang = document.getElementById('langSelect').value;
+  const ext = LANG_EXT[lang];
+  const fileNameInput = document.getElementById('fileNameInput');
+  // Update extension if name doesn't have one or has a known ext
+  const currentName = fileNameInput.value;
+  const baseName = currentName.includes('.') ? currentName.substring(0, currentName.lastIndexOf('.')) : currentName || 'main';
+  fileNameInput.value = baseName + '.' + ext;
+  updateEditorFilename();
+}
+
+document.getElementById('fileNameInput').addEventListener('input', updateEditorFilename);
+
+function updateEditorFilename() {
+  const name = document.getElementById('fileNameInput').value || 'untitled';
+  document.getElementById('editorFilename').textContent = name;
+}
+
+// ─── CONNECT GITHUB ───
+async function connectGitHub() {
+  const token = document.getElementById('patInput').value.trim();
+  if (!token) { showToast('error', '❌ Error', 'Please enter a GitHub PAT'); return; }
+
+  const btn = document.getElementById('connectBtn');
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+
+  try {
+    const res = await fetch('https://api.github.com/user', {
+      headers: { Authorization: `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28' }
+    });
+
+    if (!res.ok) throw new Error('Invalid token');
+    const user = await res.json();
+    githubToken = token;
+    isConnected = true;
+
+    // Show connected badge
+    document.getElementById('connectionStatus').innerHTML =
+      `<span class="connected-badge"><span class="connected-dot"></span>${user.login}</span>`;
+
+    // Enable form fields
+    ['repoInput','branchInput','dirPath','verifyRepoBtn','pushCodeBtn','uploadBtn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = false;
+    });
+
+    btn.textContent = '✓ Connected';
+    btn.className = 'btn btn-success';
+    showToast('success', '✅ Connected!', `Authenticated as @${user.login}`);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Connect';
+    showToast('error', '❌ Auth Failed', 'Invalid token or network error');
+  }
+}
+
+// ─── VERIFY REPO ───
+async function verifyRepo() {
+  const repo = document.getElementById('repoInput').value.trim();
+  const branch = document.getElementById('branchInput').value.trim() || 'main';
+  if (!repo) { showToast('error', '❌ Error', 'Enter a repository (owner/repo)'); return; }
+  if (!repo.includes('/')) { showToast('error', '❌ Format Error', 'Use format: owner/repo-name'); return; }
+
+  const toastId = showToast('loading', '🔍 Verifying...', `Checking ${repo}`);
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/branches/${branch}`, {
+      headers: { Authorization: `Bearer ${githubToken}`, 'X-GitHub-Api-Version': '2022-11-28' }
+    });
+    removeToast(toastId);
+    if (res.ok) {
+      showToast('success', '✅ Repository Found', `${repo} @ ${branch} is ready`);
+    } else if (res.status === 404) {
+      showToast('error', '❌ Not Found', 'Repository or branch does not exist');
+    } else {
+      showToast('error', '❌ Error', `HTTP ${res.status}`);
+    }
+  } catch(e) {
+    removeToast(toastId);
+    showToast('error', '❌ Network Error', e.message);
+  }
+}
+
+// ─── PUSH CODE ───
+async function pushCode() {
+  if (!validateConnection()) return;
+
+  const repo = document.getElementById('repoInput').value.trim();
+  const branch = document.getElementById('branchInput').value.trim() || 'main';
+  const dir = document.getElementById('dirPath').value.trim();
+  let fileName = document.getElementById('fileNameInput').value.trim();
+  const code = document.getElementById('codeEditor').value;
+  const commitMsg = document.getElementById('commitMsg1').value.trim() || 'feat: upload via CodePush';
+
+  if (!fileName) { showToast('error', '❌ Validation', 'Enter a file name'); return; }
+  if (!code) { showToast('error', '❌ Validation', 'Code editor is empty'); return; }
+  if (!repo || !repo.includes('/')) { showToast('error', '❌ Validation', 'Enter valid repository (owner/repo)'); return; }
+
+  const filePath = dir ? `${dir.replace(/\/$/, '')}/${fileName}` : fileName;
+
+  const btn = document.getElementById('pushCodeBtn');
+  btn.disabled = true;
+  const progressEl = document.getElementById('codeProgress');
+  const progressBar = document.getElementById('codeProgressBar');
+  progressEl.style.display = 'block';
+
+  animateProgress(progressBar, 30, 300);
+
+  try {
+    // Check if file exists (to get SHA for update)
+    let sha = null;
+    const checkRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}`, {
+      headers: { Authorization: `Bearer ${githubToken}`, 'X-GitHub-Api-Version': '2022-11-28' }
+    });
+    if (checkRes.ok) {
+      const existing = await checkRes.json();
+      sha = existing.sha;
+    }
+
+    animateProgress(progressBar, 70, 400);
+
+    const content = btoa(unescape(encodeURIComponent(code)));
+    const body = { message: commitMsg, content, branch };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${githubToken}`,
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      body: JSON.stringify(body)
+    });
+
+    animateProgress(progressBar, 100, 300);
+
+    if (res.ok) {
+      const data = await res.json();
+      const url = data.content?.html_url || `https://github.com/${repo}/blob/${branch}/${filePath}`;
+      setTimeout(() => {
+        progressEl.style.display = 'none';
+        progressBar.style.width = '0%';
+      }, 1000);
+      showToast('success', '🎉 Pushed!', `${fileName} → ${repo}`, url);
+    } else {
+      const err = await res.json();
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+  } catch(e) {
+    progressEl.style.display = 'none';
+    progressBar.style.width = '0%';
+    showToast('error', '❌ Push Failed', e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ─── DRAG & DROP ───
+const dropzone = document.getElementById('dropzone');
+
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+});
+
+function handleFiles(files) {
+  for (const f of files) {
+    if (!selectedFiles.find(sf => sf.name === f.name && sf.size === f.size)) {
+      selectedFiles.push(f);
+    }
+  }
+  renderFileList();
+}
+
+function renderFileList() {
+  const list = document.getElementById('fileList');
+  list.innerHTML = '';
+  selectedFiles.forEach((f, i) => {
+    const ext = f.name.includes('.') ? f.name.split('.').pop().toUpperCase() : 'FILE';
+    const size = formatBytes(f.size);
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = `
+      <div class="file-ext-badge">.${ext.toLowerCase()}</div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-size">${size} • ${f.type || 'text/plain'}</div>
+      </div>
+      <button class="file-remove" onclick="removeFile(${i})" title="Remove">✕</button>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function removeFile(idx) {
+  selectedFiles.splice(idx, 1);
+  renderFileList();
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+// ─── UPLOAD FILES ───
+async function uploadFiles() {
+  if (!validateConnection()) return;
+  if (selectedFiles.length === 0) { showToast('error', '❌ Validation', 'No files selected'); return; }
+
+  const repo = document.getElementById('repoInput').value.trim();
+  const branch = document.getElementById('branchInput').value.trim() || 'main';
+  const dir = document.getElementById('dirPath').value.trim();
+  const commitMsg = document.getElementById('commitMsg2').value.trim() || 'feat: upload files via CodePush';
+
+  if (!repo || !repo.includes('/')) { showToast('error', '❌ Validation', 'Enter valid repository (owner/repo)'); return; }
+
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = true;
+  const progressEl = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('uploadProgressBar');
+  const progressLabel = document.getElementById('uploadProgressLabel');
+  progressEl.style.display = 'block';
+
+  let successCount = 0;
+  let errorCount = 0;
+
+  for (let i = 0; i < selectedFiles.length; i++) {
+    const f = selectedFiles[i];
+    const pct = Math.round(((i) / selectedFiles.length) * 100);
+    progressBar.style.width = pct + '%';
+    progressLabel.textContent = `Uploading ${i+1}/${selectedFiles.length}: ${f.name}`;
+
+    try {
+      const content = await readFileAsBase64(f);
+      const filePath = dir ? `${dir.replace(/\/$/, '')}/${f.name}` : f.name;
+
+      // Check for existing file SHA
+      let sha = null;
+      const checkRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}`, {
+        headers: { Authorization: `Bearer ${githubToken}`, 'X-GitHub-Api-Version': '2022-11-28' }
+      });
+      if (checkRes.ok) {
+        const existing = await checkRes.json();
+        sha = existing.sha;
+      }
+
+      const body = { message: `${commitMsg} (${f.name})`, content, branch };
+      if (sha) body.sha = sha;
+
+      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${githubToken}`,
+          'Content-Type': 'application/json',
+          'X-GitHub-Api-Version': '2022-11-28'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) successCount++;
+      else { const err = await res.json(); throw new Error(err.message); }
+    } catch(e) {
+      errorCount++;
+      showToast('error', `❌ ${f.name}`, e.message);
+    }
+  }
+
+  progressBar.style.width = '100%';
+  progressLabel.textContent = 'Done!';
+
+  setTimeout(() => {
+    progressEl.style.display = 'none';
+    progressBar.style.width = '0%';
+  }, 1500);
+
+  if (successCount > 0) {
+    const url = `https://github.com/${repo}/tree/${branch}${dir ? '/' + dir : ''}`;
+    showToast('success', `🎉 Uploaded ${successCount} file(s)!`,
+      errorCount > 0 ? `${errorCount} failed` : 'All files pushed successfully', url);
+  }
+  if (successCount > 0 && errorCount === 0) {
+    selectedFiles = [];
+    renderFileList();
+    document.getElementById('fileInput').value = '';
+  }
+
+  btn.disabled = false;
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ─── VALIDATION ───
+function validateConnection() {
+  if (!isConnected || !githubToken) {
+    showToast('error', '❌ Not Connected', 'Please connect your GitHub token first');
+    return false;
+  }
+  return true;
+}
+
+// ─── PROGRESS ANIMATION ───
+function animateProgress(bar, target, duration) {
+  const start = parseFloat(bar.style.width) || 0;
+  const diff = target - start;
+  const startTime = performance.now();
+  function step(now) {
+    const elapsed = now - startTime;
+    const pct = Math.min(elapsed / duration, 1);
+    bar.style.width = (start + diff * pct) + '%';
+    if (pct < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ─── TOASTS ───
+let toastId = 0;
+const toasts = {};
+
+function showToast(type, title, message, link = null) {
+  const id = ++toastId;
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.id = `toast-${id}`;
+
+  const icons = { success: '✅', error: '❌', loading: '<div class="spinner"></div>' };
+  const icon = icons[type] || '💬';
+
+  toast.innerHTML = `
+    ${type === 'loading' ? '<div class="spinner"></div>' : `<span class="toast-icon">${icon}</span>`}
+    <div class="toast-text">
+      <strong>${title}</strong><br>
+      <span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-muted)">${message}</span>
+      ${link ? `<a href="${link}" target="_blank" class="toast-link">View on GitHub →</a>` : ''}
+    </div>
+  `;
+  container.appendChild(toast);
+  toasts[id] = toast;
+
+  if (type !== 'loading') {
+    setTimeout(() => removeToast(id), 5000);
+  }
+  return id;
+}
+
+function removeToast(id) {
+  const toast = document.getElementById(`toast-${id}`);
+  if (toast) {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(40px)';
+    toast.style.transition = 'all 0.3s';
+    setTimeout(() => toast.remove(), 300);
+  }
+}
+
+// ─── INITIAL LANG SETUP ───
+updateLang();
+document.getElementById('fileNameInput').value = 'main.py';
+updateEditorFilename();
+</script>
+</body>
+</html>
