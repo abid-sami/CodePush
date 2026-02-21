@@ -81,7 +81,7 @@ app.post('/api/upload/code', async (req, res) => {
 
     const octokit = getOctokit();
     const commitUrl = await pushToGitHub(
-      octokit, safeFilename, content,
+      octokit, `Files/${safeFilename}`, content,
       commitMessage || `Add ${safeFilename} via CodeVault`
     );
 
@@ -115,7 +115,7 @@ app.post('/api/upload/files', upload.array('files', 20), async (req, res) => {
       const safeFilename = path.basename(file.originalname);
       const content = file.buffer.toString('utf-8');
       const commitUrl = await pushToGitHub(
-        octokit, safeFilename, content,
+        octokit, `Files/${safeFilename}`, content,
         commitMessage || `Upload ${safeFilename} via CodeVault`
       );
       results.push({ filename: safeFilename, commitUrl, size: file.size });
