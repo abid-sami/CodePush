@@ -1,3 +1,4 @@
+<<<<<<< HEAD:vercel.json
 {
   "version": 2,
   "builds": [
@@ -7,4 +8,15 @@
     { "src": "/api/(.*)", "dest": "server.js" },
     { "src": "/(.*)", "dest": "public/$1" }
   ]
+=======
+{
+  "version": 2,
+  "builds": [
+    { "src": "server.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "server.js" },
+    { "src": "/(.*)", "dest": "public/$1" }
+  ]
+>>>>>>> 419beef0a7a209ff0fcb32ab69c1ea2afaee94f3:Codes/vercel.json
 }
