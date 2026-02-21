@@ -520,8 +520,8 @@
           <div class="field-group">
             <label class="field-label">Language</label>
             <select id="langSelect" onchange="updateLang()">
-              <option value="cpp">C++ (.cpp)</option>
-              <option value="python" selected>Python (.py)</option>
+              <option value="cpp" selected>C++ (.cpp)</option>
+              <option value="python">Python (.py)</option>
               <option value="javascript">JavaScript (.js)</option>
               <option value="html">HTML (.html)</option>
               <option value="css">CSS (.css)</option>
@@ -534,7 +534,7 @@
           </div>
           <div class="field-group">
             <label class="field-label">File Name</label>
-            <input type="text" id="fileNameInput" placeholder="main.py">
+            <input type="text" id="fileNameInput" placeholder="main.cpp">
           </div>
         </div>
 
@@ -543,13 +543,15 @@
             <div class="editor-dot dot-red"></div>
             <div class="editor-dot dot-yellow"></div>
             <div class="editor-dot dot-green"></div>
-            <span class="editor-filename" id="editorFilename">main.py</span>
+            <span class="editor-filename" id="editorFilename">main.cpp</span>
           </div>
-          <textarea id="codeEditor" spellcheck="false" placeholder="# Write your code here...
-def hello_world():
-    print('Hello, GitHub!')
-    
-hello_world()"></textarea>
+          <textarea id="codeEditor" spellcheck="false" placeholder="// Write your code here...
+#include <iostream>
+using namespace std;
+int main() {
+    cout << \"Hello, GitHub!\" << endl;
+    return 0;
+}"></textarea>
         </div>
 
         <div class="field-group">
@@ -582,10 +584,10 @@ hello_world()"></textarea>
       <div class="panel-body">
 
         <div class="dropzone" id="dropzone">
-          <input type="file" id="fileInput" multiple accept=".cpp,.py,.html,.css,.js,.ts,.java,.go,.rs,.sh,.txt,.json,.md,.yaml,.yml,.xml" onchange="handleFiles(this.files)">
+          <input type="file" id="fileInput" multiple onchange="handleFiles(this.files)">
           <div class="dropzone-icon">📂</div>
           <h3>Drop files here</h3>
-          <p>or click to browse • .cpp .py .html .css .js and more</p>
+          <p>or click to browse • any file type accepted</p>
         </div>
 
         <div class="file-list" id="fileList"></div>
@@ -1017,7 +1019,7 @@ function removeToast(id) {
 
 // ─── INITIAL LANG SETUP ───
 updateLang();
-document.getElementById('fileNameInput').value = 'main.py';
+document.getElementById('fileNameInput').value = 'main.cpp';
 updateEditorFilename();
 </script>
 </body>

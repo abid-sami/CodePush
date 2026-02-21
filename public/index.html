@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CodeVault — Secure GitHub Uploader</title>
+<title>CodePush — Secure GitHub Uploader</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme" />
@@ -754,7 +754,7 @@ select {
 footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 20px 0;
   margin-top: 32px;
   border-top: 1px solid var(--border);
@@ -777,9 +777,9 @@ footer strong { color: var(--accent); }
     <div class="logo">
       <div class="logo-icon">⚡</div>
       <div>
-        <h1>CodeVault</h1>
+        <h1>CodePush</h1>
       </div>
-      <span>v1.0</span>
+      
     </div>
 
     <div class="header-right">
@@ -814,6 +814,9 @@ footer strong { color: var(--accent); }
           <span class="type-tag">.js</span><span class="type-tag">.ts</span>
           <span class="type-tag">.json</span><span class="type-tag">.md</span>
           <span class="type-tag">.txt</span><span class="type-tag">.jsx</span>
+          <span class="type-tag">.pkt</span><span class="type-tag">.jpg</span>
+          <span class="type-tag">.png</span><span class="type-tag">.mp4</span>
+          <span class="type-tag">.pdf</span><span class="type-tag">.docs</span>
           <span class="type-tag">.tsx</span>
         </div>
       </div>
@@ -839,9 +842,9 @@ footer strong { color: var(--accent); }
           <div>
             <label for="lang-select">Language</label>
             <select id="lang-select">
-              <option value="javascript">JavaScript</option>
-              <option value="python">Python</option>
               <option value="cpp">C++</option>
+              <option value="python">Python</option>
+              <option value="javascript">JavaScript</option>
               <option value="html">HTML</option>
               <option value="css">CSS</option>
               <option value="typescript">TypeScript</option>
@@ -852,23 +855,24 @@ footer strong { color: var(--accent); }
           </div>
           <div>
             <label for="filename-input">File Name</label>
-            <input type="text" id="filename-input" placeholder="e.g. main.py" spellcheck="false" />
+            <input type="text" id="filename-input" placeholder="main.cpp" spellcheck="false" />
           </div>
         </div>
 
         <!-- Code Editor -->
         <div>
-          <label>Code Content</label>
+          <label>Your Code</label>
           <div class="editor-wrap">
             <div class="editor-toolbar">
               <div class="editor-dots">
                 <span></span><span></span><span></span>
               </div>
-              <span class="editor-lang-badge" id="editor-lang-badge">javascript</span>
+              <span class="editor-lang-badge" id="editor-lang-badge">C++</span>
               <button class="editor-copy-btn" id="copy-btn">⎘ copy</button>
             </div>
             <textarea id="code-editor" spellcheck="false" autocomplete="off" placeholder="// Paste or write your code here…"></textarea>
           </div>
+          <br/>
           <div class="char-count" id="char-count">0 chars</div>
         </div>
 
@@ -885,7 +889,7 @@ footer strong { color: var(--accent); }
 
         <!-- Submit -->
         <button class="btn btn-primary" id="code-submit-btn">
-          <span id="code-btn-icon">⬆</span>
+          <span id="code-btn-icon">⚡</span>
           <span id="code-btn-text">Push to GitHub</span>
         </button>
       </div>
@@ -904,10 +908,10 @@ footer strong { color: var(--accent); }
       <div class="panel-body">
         <!-- Drop zone -->
         <div class="drop-zone" id="drop-zone">
-          <input type="file" id="file-input" multiple accept=".cpp,.py,.html,.css,.js,.ts,.json,.md,.txt,.jsx,.tsx" />
-          <span class="drop-icon">🗂</span>
+          <input type="file" id="file-input" multiple />
+          <span class="drop-icon">📂</span>
           <div class="drop-title">Drop your files here</div>
-          <div class="drop-sub">or <em onclick="document.getElementById('file-input').click()">browse files</em> &nbsp;·&nbsp; max 5MB each</div>
+          <div class="drop-sub">or <em onclick="document.getElementById('file-input').click()">browse files</em> &nbsp;·&nbsp; any file type • max 5MB each</div>
         </div>
 
         <!-- File list -->
@@ -919,7 +923,7 @@ footer strong { color: var(--accent); }
         <!-- Commit message -->
         <div>
           <label for="file-commit-msg">Commit Message</label>
-          <input type="text" id="file-commit-msg" placeholder="Upload files via CodeVault…" />
+          <input type="text" id="file-commit-msg" placeholder="Upload files via CodePush…" />
         </div>
 
         <!-- Progress -->
@@ -929,7 +933,7 @@ footer strong { color: var(--accent); }
 
         <!-- Upload button -->
         <button class="btn btn-secondary" id="file-submit-btn">
-          <span id="file-btn-icon">⬆</span>
+          <span id="file-btn-icon">🚀</span>
           <span id="file-btn-text">Upload Files to GitHub</span>
         </button>
       </div>
@@ -938,8 +942,8 @@ footer strong { color: var(--accent); }
   </div><!-- /panels -->
 
   <footer>
-    <span>CodeVault &copy; 2024 — GitHub credentials stored <strong>server-side only</strong></span>
-    <span>Node.js + Express &nbsp;·&nbsp; GitHub REST API</span>
+    <span>CodePush &copy; <script>document.write(new Date().getFullYear())</script> — Developed by <strong>Ragib Hasan Abid Sami</strong></span>
+    
   </footer>
 
 </div><!-- /app -->
