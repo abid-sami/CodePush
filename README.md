@@ -64,7 +64,7 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Allowed File Types
 
-`.cpp` `.py` `.html` `.css` `.js` `.ts` `.json` `.md` `.txt` `.jsx` `.tsx`
+Any file type is allowed, up to the 5MB per-file limit.
 
 ---
 

@@ -14,8 +14,6 @@ const GITHUB_OWNER  = process.env.GITHUB_OWNER;
 const GITHUB_REPO   = process.env.GITHUB_REPO;
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
 
-const ALLOWED_EXTENSIONS = ['.cpp', '.py', '.html', '.css', '.js', '.ts', '.json', '.md', '.txt', '.jsx', '.tsx'];
-
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -25,11 +23,6 @@ function getOctokit() {
     throw new Error('GitHub configuration is missing. Check your .env file.');
   }
   return new Octokit({ auth: GITHUB_TOKEN });
-}
-
-function validateExtension(filename) {
-  const ext = path.extname(filename).toLowerCase();
-  return ALLOWED_EXTENSIONS.includes(ext);
 }
 
 async function pushToGitHub(octokit, filePath, content, commitMessage) {
@@ -75,9 +68,6 @@ app.post('/api/upload/code', async (req, res) => {
     }
 
     const safeFilename = path.basename(filename);
-    if (!validateExtension(safeFilename)) {
-      return res.status(400).json({ error: `File type not allowed. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}` });
-    }
 
     const octokit = getOctokit();
     const commitUrl = await pushToGitHub(
@@ -99,13 +89,6 @@ app.post('/api/upload/files', upload.array('files', 20), async (req, res) => {
 
     if (!files || files.length === 0) {
       return res.status(400).json({ error: 'No files provided.' });
-    }
-
-    const invalid = files.filter(f => !validateExtension(f.originalname));
-    if (invalid.length > 0) {
-      return res.status(400).json({
-        error: `Invalid file type(s): ${invalid.map(f => f.originalname).join(', ')}`
-      });
     }
 
     const octokit = getOctokit();
