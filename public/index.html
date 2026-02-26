@@ -809,17 +809,7 @@ footer strong { color: var(--accent); }
     <div class="stat-chip" style="flex:3">
       <div style="width:100%">
         <div style="margin-bottom:4px">Allowed types</div>
-        <div class="types-bar">
-          <span class="type-tag">.cpp</span><span class="type-tag">.py</span>
-          <span class="type-tag">.html</span><span class="type-tag">.css</span>
-          <span class="type-tag">.js</span><span class="type-tag">.ts</span>
-          <span class="type-tag">.json</span><span class="type-tag">.md</span>
-          <span class="type-tag">.txt</span><span class="type-tag">.jsx</span>
-          <span class="type-tag">.pkt</span><span class="type-tag">.jpg</span>
-          <span class="type-tag">.png</span><span class="type-tag">.mp4</span>
-          <span class="type-tag">.pdf</span><span class="type-tag">.docs</span>
-          <span class="type-tag">.tsx</span>
-        </div>
+        <div class="types-bar"><span class="type-tag">All types allowed</span></div>
       </div>
     </div>
   </div>
@@ -1188,14 +1178,9 @@ function renderFileList() {
 }
 
 function addFiles(newFiles) {
-  const allowed = ['.cpp','.py','.html','.css','.js','.ts','.json','.md','.txt','.jsx','.tsx'];
-  const rejected = [];
   Array.from(newFiles).forEach(f => {
-    const ext = '.' + f.name.split('.').pop().toLowerCase();
-    if (!allowed.includes(ext)) { rejected.push(f.name); return; }
     if (!selectedFiles.find(x => x.name === f.name)) selectedFiles.push(f);
   });
-  if (rejected.length) showToast('error', 'Rejected files', `Not allowed: ${rejected.join(', ')}`);
   renderFileList();
 }
 

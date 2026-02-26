@@ -96,7 +96,7 @@ app.post('/api/upload/files', upload.array('files', 20), async (req, res) => {
 
     for (const file of files) {
       const safeFilename = path.basename(file.originalname);
-      const content = file.buffer.toString('utf-8');
+      const content = file.buffer;
       const commitUrl = await pushToGitHub(
         octokit, `Files/${safeFilename}`, content,
         commitMessage || `Upload ${safeFilename} via CodeVault`
