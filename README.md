@@ -60,7 +60,7 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 | **Dark/Light Mode** | Toggle with one click |
 | **Progress Indicators** | Animated upload progress bar |
 | **Toast Notifications** | Success/error feedback with commit links |
-| **File Validation** | Only allowed extensions accepted |
+| **File Validation** | Any file extension allowed (max 5MB per file) |
 
 ## 📁 Allowed File Types
 

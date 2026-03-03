@@ -1189,14 +1189,9 @@ function renderFileList() {
 }
 
 function addFiles(newFiles) {
-  const allowed = ['.cpp','.py','.html','.css','.js','.ts','.json','.md','.txt','.jsx','.tsx'];
-  const rejected = [];
   Array.from(newFiles).forEach(f => {
-    const ext = '.' + f.name.split('.').pop().toLowerCase();
-    if (!allowed.includes(ext)) { rejected.push(f.name); return; }
     if (!selectedFiles.find(x => x.name === f.name)) selectedFiles.push(f);
   });
-  if (rejected.length) showToast('error', 'Rejected files', `Not allowed: ${rejected.join(', ')}`);
   renderFileList();
 }
 
