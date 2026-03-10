@@ -3,6 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const { Octokit } = require('@octokit/rest');
+const favicon = require('serve-favicon');
 const path = require('path');
 
 const app = express();
@@ -14,6 +15,7 @@ const GITHUB_OWNER  = process.env.GITHUB_OWNER;
 const GITHUB_REPO   = process.env.GITHUB_REPO;
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
 
+app.use(favicon(path.join(__dirname, 'public', 'favicon.png')));
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));

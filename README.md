@@ -1,4 +1,4 @@
-# ⚡ CodePush — Secure GitHub Uploader
+# ⚡ CodePush — Secure GitHub Files Uploader
 
 A developer-focused web app to upload and manage code files directly to your GitHub repository. GitHub credentials are stored **server-side only** and never exposed to the frontend.
 
