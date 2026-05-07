@@ -3,7 +3,6 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const { Octokit } = require('@octokit/rest');
-const favicon = require('serve-favicon');
 const path = require('path');
 
 const app = express();
@@ -15,14 +14,12 @@ const GITHUB_OWNER  = process.env.GITHUB_OWNER;
 const GITHUB_REPO   = process.env.GITHUB_REPO;
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
 
-app.use(favicon(path.join(__dirname, 'public', 'favicon.png')));
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 function getOctokit() {
   if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
-    throw new Error('GitHub configuration is missing. Check your .env file.');
+    throw new Error('GitHub configuration is missing. Check your environment variables.');
   }
   return new Octokit({ auth: GITHUB_TOKEN });
 }
@@ -64,19 +61,15 @@ app.get('/api/health', (req, res) => {
 app.post('/api/upload/code', async (req, res) => {
   try {
     const { filename, content, commitMessage } = req.body;
-
     if (!filename || !content) {
       return res.status(400).json({ error: 'filename and content are required.' });
     }
-
     const safeFilename = path.basename(filename);
-
     const octokit = getOctokit();
     const commitUrl = await pushToGitHub(
       octokit, `Files/${safeFilename}`, content,
       commitMessage || `Add ${safeFilename} via CodeVault`
     );
-
     res.json({ success: true, message: `${safeFilename} pushed successfully.`, commitUrl });
   } catch (err) {
     console.error('Code upload error:', err.message);
@@ -88,14 +81,11 @@ app.post('/api/upload/files', upload.array('files', 20), async (req, res) => {
   try {
     const { commitMessage } = req.body;
     const files = req.files;
-
     if (!files || files.length === 0) {
       return res.status(400).json({ error: 'No files provided.' });
     }
-
     const octokit = getOctokit();
     const results = [];
-
     for (const file of files) {
       const safeFilename = path.basename(file.originalname);
       const content = file.buffer;
@@ -105,7 +95,6 @@ app.post('/api/upload/files', upload.array('files', 20), async (req, res) => {
       );
       results.push({ filename: safeFilename, commitUrl, size: file.size });
     }
-
     res.json({ success: true, message: `${results.length} file(s) pushed successfully.`, results });
   } catch (err) {
     console.error('File upload error:', err.message);
@@ -113,5 +102,5 @@ app.post('/api/upload/files', upload.array('files', 20), async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`CodeVault running on http://localhost:${PORT}`));
+// ─── CRITICAL: Export for Vercel (no app.listen) ─────────────────────────────
+module.exports = app;
