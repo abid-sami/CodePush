@@ -16,6 +16,7 @@ const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 function getOctokit() {
   if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
@@ -100,6 +101,11 @@ app.post('/api/upload/files', upload.array('files', 20), async (req, res) => {
     console.error('File upload error:', err.message);
     res.status(500).json({ error: err.message || 'Upload failed.' });
   }
+});
+
+// ─── Fallback: serve index.html for all non-API routes ───────────────────────
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ─── CRITICAL: Export for Vercel (no app.listen) ─────────────────────────────
