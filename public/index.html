@@ -120,9 +120,9 @@ header {
 }
 
 .logo h1 {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -.5px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
   background: linear-gradient(135deg, var(--text) 30%, var(--text-dim));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -200,8 +200,54 @@ header {
   gap: 20px;
 }
 
+.mobile-tabs {
+  display: none;
+  margin-bottom: 16px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--card-glow);
+}
+
+.mobile-tab-btn {
+  flex: 1;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background .2s, color .2s, box-shadow .2s;
+}
+
+.mobile-tab-btn.active {
+  background: linear-gradient(135deg, rgba(0,229,160,.14), rgba(0,152,255,.14));
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px rgba(0,152,255,.22);
+}
+
 @media (max-width: 900px) {
-  .panels { grid-template-columns: 1fr; }
+  .mobile-tabs {
+    display: flex;
+    gap: 8px;
+  }
+
+  .panels {
+    grid-template-columns: 1fr;
+  }
+
+  .panel[data-mobile-panel] {
+    display: none;
+  }
+
+  .panel[data-mobile-panel].mobile-active {
+    display: flex;
+  }
 }
 
 /* ── Panel card ──────────────────────────────────────────────────── */
@@ -692,8 +738,42 @@ select {
 .stats-bar {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap;
+  align-items: stretch;
   margin-bottom: 8px;
+}
+
+.stats-primary {
+  display: flex;
+  gap: 12px;
+  flex: 2;
+}
+
+.stats-types {
+  flex: 3;
+}
+
+@media (max-width: 640px) {
+  .stats-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .stats-primary {
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+  }
+
+  .stats-primary .stat-chip,
+  .stats-types {
+    width: 100%;
+  }
+
+  .stats-primary .stat-chip {
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 .stat-chip {
@@ -794,31 +874,33 @@ footer strong { color: var(--accent); }
 
   <!-- ─── Stats ────────────────────────────────────────────────── -->
   <div class="stats-bar" style="margin-bottom:20px">
-    <div class="stat-chip">
-      <div>
-        <div class="stat-val" id="stat-uploads">0</div>
-        <div>uploads</div>
+    <div class="stats-primary">
+      <div class="stat-chip">
+        <div>
+          <div class="stat-val" id="stat-uploads">0</div>
+          <div>uploads</div>
+        </div>
+      </div>
+      <div class="stat-chip">
+        <div>
+          <div class="stat-val" id="stat-files">0</div>
+          <div>files pushed</div>
+        </div>
       </div>
     </div>
-    <div class="stat-chip">
-      <div>
-        <div class="stat-val" id="stat-files">0</div>
-        <div>files pushed</div>
-      </div>
-    </div>
-    <div class="stat-chip" style="flex:3">
+    <div class="stat-chip stats-types">
       <div style="width:100%">
         <div style="margin-bottom:4px">Allowed types</div>
         <div class="types-bar">
           <span class="type-tag">.cpp</span><span class="type-tag">.py</span>
           <span class="type-tag">.html</span><span class="type-tag">.css</span>
-          <span class="type-tag">.js</span><span class="type-tag">.ts</span>
+          <span class="type-tag">.js</span>
           <span class="type-tag">.json</span><span class="type-tag">.md</span>
           <span class="type-tag">.txt</span><span class="type-tag">.jsx</span>
           <span class="type-tag">.pkt</span><span class="type-tag">.jpg</span>
           <span class="type-tag">.png</span><span class="type-tag">.mp4</span>
           <span class="type-tag">.pdf</span><span class="type-tag">.docs</span>
-          <span class="type-tag">.tsx</span>
+          
         </div>
         <div class="types-bar"><span class="type-tag">All types allowed</span></div>
       </div>
@@ -826,10 +908,15 @@ footer strong { color: var(--accent); }
   </div>
 
   <!-- ─── Two panels ───────────────────────────────────────────── -->
+  <div class="mobile-tabs" aria-label="Upload sections">
+    <button class="mobile-tab-btn active" type="button" data-mobile-tab="code" aria-selected="true">Manual Code Upload</button>
+    <button class="mobile-tab-btn" type="button" data-mobile-tab="files" aria-selected="false">File Upload</button>
+  </div>
+
   <div class="panels">
 
     <!-- ══ Panel 1: Code Editor ══════════════════════════════════ -->
-    <div class="panel">
+    <div class="panel mobile-active" data-mobile-panel="code">
       <div class="panel-header">
         <div class="panel-icon green">✏️</div>
         <div>
@@ -898,7 +985,7 @@ footer strong { color: var(--accent); }
     </div>
 
     <!-- ══ Panel 2: File Upload ═══════════════════════════════════ -->
-    <div class="panel">
+    <div class="panel" data-mobile-panel="files">
       <div class="panel-header">
         <div class="panel-icon blue">📁</div>
         <div>
@@ -1009,7 +1096,7 @@ async function checkHealth() {
     const d = await r.json();
     if (d.configured) {
       dot.className = 'status-dot ok';
-      txt.textContent = 'connected';
+      txt.textContent = 'Connected';
     } else {
       dot.className = 'status-dot err';
       txt.textContent = 'misconfigured';
@@ -1017,12 +1104,31 @@ async function checkHealth() {
     }
   } catch {
     dot.className = 'status-dot err';
-    txt.textContent = 'server offline';
+    txt.textContent = 'Offline';
     showToast('error', 'Server offline', 'Make sure the backend is running on port 3000.');
   }
 }
 
 checkHealth();
+
+const mobileTabButtons = Array.from(document.querySelectorAll('[data-mobile-tab]'));
+const mobilePanels = Array.from(document.querySelectorAll('[data-mobile-panel]'));
+
+function setMobilePanel(panelName) {
+  mobileTabButtons.forEach(btn => {
+    const active = btn.dataset.mobileTab === panelName;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+
+  mobilePanels.forEach(panel => {
+    panel.classList.toggle('mobile-active', panel.dataset.mobilePanel === panelName);
+  });
+}
+
+mobileTabButtons.forEach(btn => {
+  btn.addEventListener('click', () => setMobilePanel(btn.dataset.mobileTab));
+});
 
 // ── Progress helpers ───────────────────────────────────────────────────────
 function progressStart(wrapId, barId) {
