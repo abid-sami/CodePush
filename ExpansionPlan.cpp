@@ -10,30 +10,28 @@ int main(){
         string s;
         cin>>s;
         int c4=0, c8=0;
-         for(int i=0; i<s.size(); i++){
-                if(s[i]=='4'){
+
+        for(int i=0; i<s.size(); i++){
+            if(s[i]=='4'){
                 c4++;
             }
-                if(s[i]=='8'){
+            if(s[i]=='8'){
                 c8++;
             }
-         }
-        int mx=max(abs(x),abs(y));
-
+        }
+        int mx=max(abs(x), abs(y));
         if(n>=mx){
-           
-            int total=((c8*2)+(c4*1));
-            if(total>=x+y){
-                cout<<"YES"<<endl; 
-            }
-             
-            
+            int total=(c8*2)+c4;
+            if(total>=abs(x)+abs(y)){
+                cout<<"YES"<<endl;
         }
         else{
-                cout<<"NO"<<endl;
-            }  
-        
-
+            cout<<"NO"<<endl;
+        }
     }
-    return 0;
+        else{
+            cout<<"NO"<<endl;
+        }
+    }
+
 }
