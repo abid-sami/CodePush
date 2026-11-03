@@ -1,75 +1,112 @@
-#include<GL/glut.h>
-#include<stdlib.h>
-#include<iostream>
-#include<cmath>
-#define PI 3.1416
+#include <GL/glut.h>
+#include <iostream>
+#include <cstdlib>
 using namespace std;
 
-float x, y, xx, xxx, yy, yyy;
+float posX = 0.0f, posY = 0.0f;
+float colorR = 1.0f, colorG = 0.0f, colorB = 0.0f;
 
-void display(void)
+float moveStep = 0.1f;
+float rectWidth = 0.3f;
+float rectHeight = 0.2f;
+
+void drawRectangle()
 {
+    glColor3f(colorR, colorG, colorB);
 
-    glClear(GL_COLOR_BUFFER_BIT);
-    glLoadIdentity();
-    gluOrtho2D(-320, 320, -240, 240);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    glColor3f(1,0,0);
-    glBegin(GL_TRIANGLES);
-
-    glVertex2f(x,y);
-    glVertex2f(xx,yy);
-    glVertex2f(xxx,yyy);
-
+    glBegin(GL_QUADS);
+        glVertex2f(posX - rectWidth, posY - rectHeight);
+        glVertex2f(posX + rectWidth, posY - rectHeight);
+        glVertex2f(posX + rectWidth, posY + rectHeight);
+        glVertex2f(posX - rectWidth, posY + rectHeight);
     glEnd();
-
-
-
-
-    glClear(GL_COLOR_BUFFER_BIT);
-    glLoadIdentity();
-    gluOrtho2D(-320, 320, -240, 240);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    glColor3f(1,1,0);
-    glBegin(GL_TRIANGLES);
-    float cx=1.2, cy=1.2;
-    float nx=x*cx, ny=y*cy;
-    float nx1=xx*cx, ny1=yy*cy;
-    float nx2=xxx*cx, ny2=yyy*cy;
-
-    glVertex2f(nx,ny);
-    glVertex2f(nx1,ny1);
-    glVertex2f(nx2,ny2);
-
-
-
-
-    glEnd();
-    glFlush();
-
-
 }
 
-
-int main(int argc, char *argv[])
+void display()
 {
-    cin>>x>>y>>xx>>yy>>xxx>>yyy;
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glLoadIdentity();
+
+    drawRectangle();
+
+    glFlush();
+}
+
+void keyboard(unsigned char key, int x, int y)
+{
+    switch (key)
+    {
+        case 'w':
+        case 'W':
+            if (posY + rectHeight + moveStep <= 1.0f)
+                posY += moveStep;
+            break;
+
+        case 's':
+        case 'S':
+            if (posY - rectHeight - moveStep >= -1.0f)
+                posY -= moveStep;
+            break;
+
+        case 'a':
+        case 'A':
+            if (posX - rectWidth - moveStep >= -1.0f)
+                posX -= moveStep;
+            break;
+
+        case 'd':
+        case 'D':
+            if (posX + rectWidth + moveStep <= 1.0f)
+                posX += moveStep;
+            break;
+
+        case 'r':
+        case 'R':
+            colorR = (float)rand() / RAND_MAX;
+            colorG = (float)rand() / RAND_MAX;
+            colorB = (float)rand() / RAND_MAX;
+            break;
+
+        case 27:
+            exit(0);
+    }
+
+    glutPostRedisplay();
+}
+
+void init()
+{
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
+int main(int argc, char** argv)
+{
     glutInit(&argc, argv);
-    glutInitWindowSize(640,480);
-    glutInitWindowPosition(10,10);
-    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(800, 600);
 
-    glutCreateWindow("GLUT Shapes");
+    glutCreateWindow("Rectangle Movement Using Keyboard");
+
+    init();
+
     glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);
 
+    cout << "\nKeyboard Controls:\n";
+    cout << "W : Move Up\n";
+    cout << "S : Move Down\n";
+    cout << "A : Move Left\n";
+    cout << "D : Move Right\n";
+    cout << "R : Change Rectangle Color\n";
+    cout << "ESC : Exit Program\n";
 
     glutMainLoop();
-
-    return EXIT_SUCCESS;
 }
