@@ -1,0 +1,39 @@
+CREATE DATABASE SAMI5;
+USE SAMI5;
+
+CREATE TABLE Department(
+	DeptID int PRIMARY KEY,
+	DeptName varchar(10),
+	
+)
+
+CREATE TABLE Student(
+	SID int PRIMARY KEY,
+	SName varchar(10),
+	DeptID int,
+	FOREIGN KEY(DeptID)
+	REFERENCES Department(DeptID)
+	ON DELETE CASCADE
+	ON UPDATE CASCADE
+)
+
+INSERT INTO Department (DeptID, DeptName) VALUES
+(1, 'CSE'),
+(2, 'EEE'),
+(3, 'ENG');
+
+INSERT INTO Student (SID, SName, DeptID) VALUES
+(102, 'Alice',1),
+(101, 'Bob',2),
+(104, 'Jack',1),
+(106, 'Eve',3);
+
+SELECT * FROM Department;
+
+SELECT * FROM Student;
+
+DROP TABLE Student;
+
+DELETE FROM Department WHERE DeptID=1;
+
+UPDATE Department SET DeptID=4 WHERE DeptID=2;
