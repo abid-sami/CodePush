@@ -1,0 +1,183 @@
+CREATE DATABASE SAMI6;
+USE SAMI6;
+
+CREATE TABLE Department(
+	DeptID int,
+	DeptName varchar(10),
+)
+
+CREATE TABLE Student(
+	StudentID int,
+	StudentName varchar(10),
+	DeptID int,
+	Age INT,
+	CGPA float,
+)
+
+CREATE TABLE Enrollment(
+	EnrollmentID int,
+	StudentID int,
+	CourseName varchar(20),
+	Marks float,
+)
+
+
+
+INSERT INTO Department (DeptID, DeptName) VALUES
+(1, 'CSE'),
+(2, 'EEE'),
+(3, 'BBA'),
+(4, 'English');
+
+INSERT INTO Student(StudentID,StudentName, DeptID, Age, CGPA)
+VALUES
+(101, 'Sara',  1, 22, 3.80),
+(102, 'Karim', 2, 23, 3.20),
+(103, 'Nadiya', 1, 21, 3.50),
+(104, 'Sumi',3, 24, 2.80);
+
+
+INSERT INTO Enrollment(EnrollmentID, StudentID, CourseName, Marks) VALUES
+(1, 101, 'Database', 85),
+(2, 101, 'Networking', 78),
+(3, 102, 'Database', 65),
+(4, 101, 'Database', 90);
+
+
+SELECT * FROM Student;
+
+SELECT * FROM Department;
+
+SELECT * FROM Enrollment;
+
+CREATE VIEW HighCGPAStudents AS
+SELECT StudentID, StudentName, CGPA
+FROM Student
+WHERE CGPA>3.50;
+
+SELECT * FROM HighCGPAStudents;
+
+CREATE VIEW EligableStudents AS
+SELECT StudentID, StudentName, Age, CGPA
+FROM Student
+WHERE CGPA>=3.50 AND Age<24;
+
+SELECT * FROM EligableStudents;
+
+CREATE VIEW StudentDepartmentView AS
+SELECT Student.StudentID, Student.StudentName, Student.CGPA, Student.DeptID from
+Student FULL JOIN Department ON Student.DeptID=Department.DeptID;.
+
+SELECT * FROM StudentDepartmentView;
+
+
+CREATE VIEW HighPerformingCSEStudent AS
+SELECT StudentDepartmentView.StudentName, StudentDepartmentView.DeptName, StudentDepartmentView.CGPA, StudentDepartmentView.DeptID from
+StudentDepartmentView FULL JOIN Department ON Student.StudentID=Enrollment.StudentID
+WHERE DeptID='CSE' AND Marks>=80 AND CGPA>3.40;
+
+SELECT * FROM StudentDepartmentView;
+
+CREATE DATABASE SAMI6;
+USE SAMI6;
+
+CREATE TABLE Department(
+	DeptID int,
+	DeptName varchar(10),
+)
+
+CREATE TABLE Student(
+	StudentID int,
+	StudentName varchar(10),
+	DeptID int,
+	Age INT,
+	CGPA float,
+)
+
+CREATE TABLE Enrollment(
+	EnrollmentID int,
+	StudentID int,
+	CourseName varchar(20),
+	Marks float,
+)
+
+
+
+INSERT INTO Department (DeptID, DeptName) VALUES
+(1, 'CSE'),
+(2, 'EEE'),
+(3, 'BBA'),
+(4, 'English');
+
+INSERT INTO Student(StudentID,StudentName, DeptID, Age, CGPA)
+VALUES
+(101, 'Sara',  1, 22, 3.80),
+(102, 'Karim', 2, 23, 3.20),
+(103, 'Nadiya', 1, 21, 3.50),
+(104, 'Sumi',3, 24, 2.80);
+
+
+INSERT INTO Enrollment(EnrollmentID, StudentID, CourseName, Marks) VALUES
+(1, 101, 'Database', 85),
+(2, 101, 'Networking', 78),
+(3, 102, 'Database', 65),
+(4, 101, 'Database', 90);
+
+
+SELECT * FROM Student;
+
+SELECT * FROM Department;
+
+SELECT * FROM Enrollment;
+
+1
+CREATE VIEW HighCGPAStudents AS
+SELECT StudentID, StudentName, CGPA
+FROM Student
+WHERE CGPA>3.50;
+
+SELECT * FROM HighCGPAStudents;
+
+2
+CREATE VIEW EligableStudents AS
+SELECT StudentID, StudentName, Age, CGPA
+FROM Student
+WHERE CGPA>=3.50 AND Age<24;
+
+SELECT * FROM EligableStudents;
+
+3
+CREATE VIEW StudentDepartmentView AS
+SELECT Student.StudentID, Student.StudentName, Student.CGPA, Student.DeptID, Department.DeptName from
+Student FULL JOIN Department ON Student.DeptID=Department.DeptID;
+
+SELECT * FROM StudentDepartmentView;
+
+DROP VIEW StudentDepartmentView;
+
+4.
+CREATE VIEW HighPerformingCSEStudents AS
+SELECT DISTINCT SD.StudentName, SD.DeptName, SD.CGPA, SD.DeptID from StudentDepartmentView AS
+SD INNER JOIN Enrollment ON SD.StudentID=Enrollment.StudentID
+WHERE SD.DeptName='CSE' AND Marks>=80 AND CGPA>3.40;
+
+SELECT * FROM HighPerformingCSEStudents;
+
+DROP VIEW HighPerformingCSEStudents;
+
+
+5.
+
+CREATE VIEW DepartmentStudentCount AS
+SELECT Department.DeptName, COUNT(*) AS TotalStudents from
+Student FULL JOIN Department ON Student.DeptID=Department.DeptID
+Group by Department.DeptName;
+
+
+SELECT * FROM DepartmentStudentCount;
+
+6.
+CREATE VIEW CourseMarksSummary AS
+SELECT Enrollment.CourseName from
+Student FULL JOIN Department ON Student.DeptID=Department.DeptID
+Group by Department.DeptName;
